@@ -17,7 +17,8 @@ Built for speed - transcriptions typically complete in under 2 seconds.
 - Minimal always-on-top window
 - Visual recording/processing states
 - Transcription history with navigation (stores last 20)
-- One-click language switching (Italian, English, Spanish, French, German)
+- Language dropdown with 5 languages (English, Italian, Spanish, French, German)
+- Language preference saved automatically
 
 **Extras**
 - Filler word removal ("uhm", "ehm", etc.)
@@ -29,8 +30,8 @@ Built for speed - transcriptions typically complete in under 2 seconds.
 **Requirements**: Python 3.10+, microphone, Groq API key
 
 ```bash
-git clone https://github.com/0xgval/voice-agent.git
-cd voice-agent
+git clone https://github.com/0xGval/speech-to-text-app.git
+cd speech-to-text-app
 
 python -m venv venv
 venv\Scripts\activate  # Linux/Mac: source venv/bin/activate
@@ -58,7 +59,7 @@ On Windows, double-click `run.vbs` after setup (no console window).
 4. Text is transcribed and copied to clipboard
 5. Paste with `Ctrl+V`
 
-Use the arrow buttons in the UI to browse through your previous transcriptions.
+Use the arrow buttons in the UI to browse through your previous transcriptions. Click the language dropdown to switch between languages - your preference is saved automatically.
 
 ## Configuration
 
@@ -68,8 +69,8 @@ All settings are in `config.yaml`:
 # Hotkey combination to toggle recording
 hotkey: "ctrl+m"
 
-# Transcription language: it, en, es, fr, de
-language: "it"
+# Transcription language (saved automatically when changed in UI)
+language: "en"
 
 # Patterns to remove or replace after transcription
 text_corrections:

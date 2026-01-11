@@ -24,14 +24,32 @@ class Config:
 
     groq_api_key: str = ""
     hotkey: str = "ctrl+m"
-    language: str = "it"
+    language: str = "en"
     audio: AudioConfig = field(default_factory=AudioConfig)
     text_corrections: list = field(default_factory=list)
 
-    def toggle_language(self) -> str:
-        """Toggle between Italian and English."""
-        self.language = "en" if self.language == "it" else "it"
-        return self.language
+    def set_language(self, lang: str) -> None:
+        """Set and save language preference."""
+        self.language = lang
+        self._save_language(lang)
+
+    def _save_language(self, lang: str) -> None:
+        """Save language to config file."""
+        config_path = BASE_DIR / "config.yaml"
+        if config_path.exists():
+            with open(config_path, "r", encoding="utf-8") as f:
+                content = f.read()
+
+            # Replace language line
+            import re
+            content = re.sub(
+                r'language:\s*"?\w+"?',
+                f'language: "{lang}"',
+                content
+            )
+
+            with open(config_path, "w", encoding="utf-8") as f:
+                f.write(content)
 
 
 def load_config(config_path: Optional[Path] = None) -> Config:

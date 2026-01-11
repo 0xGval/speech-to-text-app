@@ -3,8 +3,8 @@
 # Hotkey to start/stop recording
 hotkey: "ctrl+m"
 
-# Language for speech recognition (it/en)
-language: "it"
+# Language for speech recognition (it/en/es/fr/de)
+language: "en"
 
 # Text corrections (applied after transcription)
 text_corrections:

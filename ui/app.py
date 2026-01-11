@@ -195,35 +195,88 @@ HTML_CONTENT = """
             box-shadow: 0 0 12px var(--accent-amber);
         }
 
-        /* Compact Language Switcher in Header */
-        .lang-switcher-mini {
-            display: flex;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 6px;
-            padding: 2px;
-            gap: 1px;
+        /* Language Dropdown */
+        .lang-dropdown {
+            position: relative;
         }
 
-        .lang-btn-mini {
+        .lang-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
             padding: 5px 10px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.3);
             font-family: inherit;
             font-size: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            background: transparent;
-            color: var(--text-tertiary);
-        }
-
-        .lang-btn-mini:hover {
             color: var(--text-secondary);
         }
 
-        .lang-btn-mini.active {
-            background: var(--accent-teal);
-            color: var(--bg-base);
+        .lang-toggle:hover {
+            background: rgba(0, 0, 0, 0.4);
+            color: var(--text-primary);
+        }
+
+        .lang-toggle svg {
+            width: 10px;
+            height: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .lang-dropdown.open .lang-toggle svg {
+            transform: rotate(180deg);
+        }
+
+        .lang-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            background: rgba(20, 20, 25, 0.95);
+            border: 1px solid var(--border-medium);
+            border-radius: 8px;
+            padding: 4px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 100;
+        }
+
+        .lang-dropdown.open .lang-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .lang-option {
+            display: block;
+            width: 100%;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+        }
+
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+        }
+
+        .lang-option.active {
+            color: var(--accent-teal);
         }
 
         /* Record Button */
@@ -554,9 +607,20 @@ HTML_CONTENT = """
                 <span class="logo">STT -0</span>
                 <div class="status-indicator" id="statusIndicator"></div>
             </div>
-            <div class="lang-switcher-mini">
-                <button class="lang-btn-mini active" id="btnLangIt" onclick="switchLang('it')">IT</button>
-                <button class="lang-btn-mini" id="btnLangEn" onclick="switchLang('en')">EN</button>
+            <div class="lang-dropdown" id="langDropdown">
+                <button class="lang-toggle" onclick="toggleLangMenu()">
+                    <span id="currentLang">EN</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+                <div class="lang-menu">
+                    <button class="lang-option" data-lang="it" onclick="selectLang('it')">Italiano</button>
+                    <button class="lang-option active" data-lang="en" onclick="selectLang('en')">English</button>
+                    <button class="lang-option" data-lang="es" onclick="selectLang('es')">Español</button>
+                    <button class="lang-option" data-lang="fr" onclick="selectLang('fr')">Français</button>
+                    <button class="lang-option" data-lang="de" onclick="selectLang('de')">Deutsch</button>
+                </div>
             </div>
         </header>
 
@@ -624,11 +688,28 @@ HTML_CONTENT = """
             pywebview.api.toggle_recording();
         }
 
-        function switchLang(lang) {
-            pywebview.api.set_language(lang);
-            document.getElementById('btnLangIt').classList.toggle('active', lang === 'it');
-            document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+        function toggleLangMenu() {
+            document.getElementById('langDropdown').classList.toggle('open');
         }
+
+        function selectLang(lang) {
+            pywebview.api.set_language(lang);
+            document.getElementById('currentLang').textContent = lang.toUpperCase();
+
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.lang === lang);
+            });
+
+            document.getElementById('langDropdown').classList.remove('open');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('langDropdown');
+            if (!dropdown.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
 
         function copyTranscription() {
             if (history.length === 0 || historyIndex < 0) return;
@@ -734,8 +815,10 @@ HTML_CONTENT = """
         }
 
         function setInitialLanguage(lang) {
-            document.getElementById('btnLangIt').classList.toggle('active', lang === 'it');
-            document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+            document.getElementById('currentLang').textContent = lang.toUpperCase();
+            document.querySelectorAll('.lang-option').forEach(opt => {
+                opt.classList.toggle('active', opt.dataset.lang === lang);
+            });
         }
     </script>
 </body>
@@ -797,8 +880,8 @@ class Api:
             Thread(target=self._process_audio, args=(audio_data,), daemon=True).start()
 
     def set_language(self, lang):
-        """Set transcription language."""
-        self.config.language = lang
+        """Set transcription language and save preference."""
+        self.config.set_language(lang)
         self.transcriber.set_language(lang)
 
     def copy_text(self, text):
