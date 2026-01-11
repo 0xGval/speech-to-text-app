@@ -32,20 +32,25 @@ class Config:
     def set_language(self, lang: str) -> None:
         """Set and save language preference."""
         self.language = lang
-        self._save_language(lang)
+        self._save_setting("language", f'"{lang}"')
 
-    def _save_language(self, lang: str) -> None:
-        """Save language to config file."""
+    def set_hotkey(self, hotkey: str) -> None:
+        """Set and save hotkey preference."""
+        self.hotkey = hotkey
+        self._save_setting("hotkey", f'"{hotkey}"')
+
+    def _save_setting(self, key: str, value: str) -> None:
+        """Save a setting to config file."""
+        import re
         config_path = BASE_DIR / "config.yaml"
         if config_path.exists():
             with open(config_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
-            # Replace language line
-            import re
+            # Replace the setting line
             content = re.sub(
-                r'language:\s*"?\w+"?',
-                f'language: "{lang}"',
+                rf'{key}:\s*"?[^"\n]+"?',
+                f'{key}: {value}',
                 content
             )
 

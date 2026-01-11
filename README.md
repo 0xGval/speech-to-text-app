@@ -10,8 +10,9 @@ Built for speed - transcriptions typically complete in under 2 seconds.
 
 **Core**
 - Global hotkey activation (`Ctrl+M` by default) - works from any application
+- Customizable hotkey - click the hotkey display to set your preferred key combination
 - Fast transcription via Groq Whisper API (free tier available)
-- Automatic clipboard copy - just paste where you need it
+- Auto-paste - transcribed text is automatically typed into the active input field
 
 **UI**
 - Minimal always-on-top window
@@ -53,13 +54,15 @@ python main.py
 
 On Windows, double-click `run.vbs` after setup (no console window).
 
-1. Press `Ctrl+M` to start recording
-2. Speak into your microphone
-3. Press `Ctrl+M` again to stop
-4. Text is transcribed and copied to clipboard
-5. Paste with `Ctrl+V`
+1. Click on an input field where you want the text (terminal, browser, editor, etc.)
+2. Press `Ctrl+M` to start recording
+3. Speak into your microphone
+4. Press `Ctrl+M` again to stop
+5. Text is transcribed and automatically pasted into the active field
 
-Use the arrow buttons in the UI to browse through your previous transcriptions. Click the language dropdown to switch between languages - your preference is saved automatically.
+**Customizing the hotkey**: Click on the hotkey display at the bottom of the window, then press your desired key combination (e.g., `Ctrl+Shift+V`). Press `Escape` to cancel.
+
+Use the arrow buttons in the UI to browse through your previous transcriptions. Click the language dropdown to switch between languages. All preferences are saved automatically.
 
 ## Configuration
 

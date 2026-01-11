@@ -3,6 +3,7 @@ Voice Agent - Premium PyWebView UI
 A sleek, modern voice recording interface with glassmorphism design.
 """
 
+import time
 import webview
 import keyboard
 import pyperclip
@@ -597,6 +598,21 @@ HTML_CONTENT = """
             font-weight: 500;
             letter-spacing: 0.5px;
             color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .kbd:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border-medium);
+            color: var(--text-primary);
+        }
+
+        .kbd.listening {
+            background: var(--accent-amber-dim);
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+            animation: breathe 1.2s ease-in-out infinite;
         }
     </style>
 </head>
@@ -672,7 +688,7 @@ HTML_CONTENT = """
         <footer class="footer">
             <div class="hotkey-row">
                 <span>Hotkey</span>
-                <kbd class="kbd" id="hotkeyDisplay">ctrl+shift+v</kbd>
+                <kbd class="kbd" id="hotkeyDisplay" onclick="startHotkeyCapture()">ctrl+shift+v</kbd>
             </div>
         </footer>
     </div>
@@ -814,6 +830,70 @@ HTML_CONTENT = """
             document.getElementById('hotkeyDisplay').textContent = key;
         }
 
+        let isCapturingHotkey = false;
+
+        function startHotkeyCapture() {
+            if (isCapturingHotkey) return;
+            isCapturingHotkey = true;
+
+            const kbd = document.getElementById('hotkeyDisplay');
+            kbd.classList.add('listening');
+            kbd.textContent = 'Press keys...';
+
+            document.addEventListener('keydown', captureHotkey);
+        }
+
+        function captureHotkey(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            // Ignore lone modifier keys
+            if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+                return;
+            }
+
+            // Build hotkey string
+            const parts = [];
+            if (e.ctrlKey) parts.push('ctrl');
+            if (e.shiftKey) parts.push('shift');
+            if (e.altKey) parts.push('alt');
+
+            // Normalize key name
+            let key = e.key.toLowerCase();
+            if (key === ' ') key = 'space';
+            if (key === 'escape') {
+                // Cancel capture on Escape
+                cancelHotkeyCapture();
+                return;
+            }
+
+            parts.push(key);
+            const hotkey = parts.join('+');
+
+            // Send to Python
+            pywebview.api.set_hotkey(hotkey);
+
+            // Update UI
+            const kbd = document.getElementById('hotkeyDisplay');
+            kbd.classList.remove('listening');
+            kbd.textContent = hotkey;
+
+            // Cleanup
+            isCapturingHotkey = false;
+            document.removeEventListener('keydown', captureHotkey);
+        }
+
+        function cancelHotkeyCapture() {
+            isCapturingHotkey = false;
+            const kbd = document.getElementById('hotkeyDisplay');
+            kbd.classList.remove('listening');
+            // Restore current hotkey from Python
+            pywebview.api.get_hotkey().then(key => {
+                kbd.textContent = key;
+            });
+            document.removeEventListener('keydown', captureHotkey);
+        }
+
         function setInitialLanguage(lang) {
             document.getElementById('currentLang').textContent = lang.toUpperCase();
             document.querySelectorAll('.lang-option').forEach(opt => {
@@ -891,6 +971,30 @@ class Api:
         self.config.set_language(lang)
         self.transcriber.set_language(lang)
 
+    def set_hotkey(self, hotkey):
+        """Set new hotkey and save preference."""
+        old_hotkey = self.config.hotkey
+
+        # Remove old hotkey
+        try:
+            keyboard.remove_hotkey(old_hotkey)
+        except (KeyError, ValueError):
+            pass  # Hotkey wasn't registered
+
+        # Register new hotkey
+        keyboard.add_hotkey(
+            hotkey,
+            self.toggle_recording,
+            suppress=False
+        )
+
+        # Save to config
+        self.config.set_hotkey(hotkey)
+
+    def get_hotkey(self):
+        """Get current hotkey."""
+        return self.config.hotkey
+
     def copy_text(self, text):
         """Copy text to clipboard."""
         pyperclip.copy(text)
@@ -923,8 +1027,10 @@ class Api:
             self._set_status("idle")
             return
 
-        # Copy to clipboard
+        # Copy to clipboard and auto-paste
         pyperclip.copy(text)
+        time.sleep(0.05)  # Small delay to ensure clipboard is ready
+        keyboard.send('ctrl+v')
 
         # Update UI with full text (JS will handle display)
         escaped = text.replace("\\", "\\\\").replace("'", "\\'").replace("\n", " ")
