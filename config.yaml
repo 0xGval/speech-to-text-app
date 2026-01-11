@@ -4,7 +4,7 @@
 hotkey: "ctrl+m"
 
 # Language for speech recognition (it/en/es/fr/de)
-language: "en"
+language: "it"
 
 # Text corrections (applied after transcription)
 text_corrections:
@@ -17,3 +17,6 @@ text_corrections:
 audio:
   sample_rate: 16000
   channels: 1
+  # Device ID for microphone input (run "python -m sounddevice" to list devices)
+  # Use null for system default, or specify a device number (e.g., 0, 1, 27)
+  device_id: 0

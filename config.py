@@ -16,6 +16,7 @@ BASE_DIR = Path(__file__).parent
 class AudioConfig:
     sample_rate: int = 16000
     channels: int = 1
+    device_id: Optional[int] = None
 
 
 @dataclass
@@ -73,6 +74,7 @@ def load_config(config_path: Optional[Path] = None) -> Config:
         config.audio = AudioConfig(
             sample_rate=audio_cfg.get("sample_rate", 16000),
             channels=audio_cfg.get("channels", 1),
+            device_id=audio_cfg.get("device_id"),
         )
 
     # Load API key from environment (overrides everything)

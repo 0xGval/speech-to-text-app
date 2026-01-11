@@ -844,6 +844,7 @@ class Api:
         self.recorder = AudioRecorder(
             sample_rate=self.config.audio.sample_rate,
             channels=self.config.audio.channels,
+            device_id=self.config.audio.device_id,
         )
 
         self.transcriber = Transcriber(
@@ -872,6 +873,12 @@ class Api:
             return
 
         if not self.recorder.is_recording:
+            # Check microphone before starting
+            mic_ok, error_msg = self.recorder.check_microphone()
+            if not mic_ok:
+                self._show_error(error_msg)
+                return
+
             self._set_status("recording")
             self.recorder.start()
         else:

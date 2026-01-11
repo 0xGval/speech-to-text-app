@@ -18,14 +18,45 @@ class AudioRecorder:
         self,
         sample_rate: int = 16000,
         channels: int = 1,
+        device_id: Optional[int] = None,
     ):
         self.sample_rate = sample_rate
         self.channels = channels
+        self.device_id = device_id
 
         self._recording = False
         self._audio_data: list = []
         self._stop_event = Event()
         self._thread: Optional[Thread] = None
+
+    def check_microphone(self) -> tuple[bool, str]:
+        """
+        Check if microphone is available by actually trying to open a stream.
+        Returns: (is_available, error_message)
+        """
+        try:
+            # Force refresh of audio devices
+            sd._terminate()
+            sd._initialize()
+
+            # Actually try to open the stream briefly
+            with sd.InputStream(
+                device=self.device_id,
+                samplerate=self.sample_rate,
+                channels=self.channels,
+                dtype=np.int16,
+            ):
+                pass  # If we get here, mic works
+
+            return True, ""
+
+        except sd.PortAudioError as e:
+            error_str = str(e).lower()
+            if "invalid" in error_str or "device" in error_str:
+                return False, "No microphone found. Please connect one and try again."
+            return False, f"Microphone error: {e}"
+        except Exception as e:
+            return False, f"Error: {e}"
 
     @property
     def is_recording(self) -> bool:
@@ -74,6 +105,7 @@ class AudioRecorder:
         """Main recording loop."""
         try:
             with sd.InputStream(
+                device=self.device_id,
                 samplerate=self.sample_rate,
                 channels=self.channels,
                 dtype=np.int16,
