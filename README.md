@@ -48,6 +48,8 @@ GROQ_API_KEY=gsk_your_key_here
 python main.py
 ```
 
+Or on Windows, double-click `run.bat` after setup.
+
 1. Press `Ctrl+M` to start recording
 2. Speak into your microphone
 3. Press `Ctrl+M` again to stop
