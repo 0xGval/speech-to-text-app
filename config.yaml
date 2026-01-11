@@ -1,0 +1,19 @@
+# Voice Agent Configuration
+
+# Hotkey to start/stop recording
+hotkey: "ctrl+m"
+
+# Language for speech recognition (it/en)
+language: "it"
+
+# Text corrections (applied after transcription)
+text_corrections:
+  - ["ehm", ""]
+  - ["uhm", ""]
+  - ["mhm", ""]
+  - ["...", " "]
+
+# Audio settings
+audio:
+  sample_rate: 16000
+  channels: 1

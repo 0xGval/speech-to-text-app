@@ -1,0 +1,49 @@
+# Environment
+.env
+*.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+.eggs/
+
+# Build
+build/
+dist/
+*.spec
+*.exe
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Temp audio files
+*.wav
+*.mp3
+temp_*
+recording_*
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Docs/temp files (not part of project)
+*_docs.txt
+groq_text_to_speech_docs.txt
+CLAUDE.md
+
+# Logs
+*.log

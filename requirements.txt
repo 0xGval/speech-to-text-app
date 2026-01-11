@@ -1,0 +1,21 @@
+# Voice Agent Dependencies
+
+# Audio
+sounddevice>=0.4.6
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Speech-to-Text
+groq>=0.4.0
+
+# Hotkey
+keyboard>=0.13.5
+
+# Clipboard
+pyperclip>=1.8.0
+
+# Configuration
+pyyaml>=6.0
+
+# UI
+pywebview>=5.0.0
