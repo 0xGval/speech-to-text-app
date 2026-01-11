@@ -2,6 +2,8 @@
 
 A desktop tool that converts speech to text using Groq's Whisper API. Press a hotkey, speak into your microphone, and the transcribed text is copied to your clipboard ready to paste anywhere.
 
+![Voice Agent](screenshot.png)
+
 Built for speed - transcriptions typically complete in under 2 seconds.
 
 ## Features
@@ -48,7 +50,7 @@ GROQ_API_KEY=gsk_your_key_here
 python main.py
 ```
 
-Or on Windows, double-click `run.bat` after setup.
+On Windows, double-click `run.vbs` after setup (no console window).
 
 1. Press `Ctrl+M` to start recording
 2. Speak into your microphone
